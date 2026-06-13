@@ -132,7 +132,18 @@ function Questionnaire() {
     const answers = questionnaire.map((q) => q.answer);
     localStorage.setItem('questionnaireData', JSON.stringify(answers));
     await sendDataToGHL(answers);
-    window.top.location.href = 'https://slimming-seven.vercel.app/thank-you';
+    const goals      = Array.isArray(answers[0]) ? answers[0].join(',') : (answers[0] || '');
+    const areas      = Array.isArray(answers[1]) ? answers[1].join(',') : (answers[1] || '');
+    const medication = answers[3] || '';
+    const firstName  = answers[7]?.first_name || '';
+
+    const params = new URLSearchParams();
+    if (goals)      params.set('goals',      goals);
+    if (areas)      params.set('areas',      areas);
+    if (medication) params.set('medication', medication);
+    if (firstName)  params.set('name',       firstName);
+
+    window.top.location.href = `https://slimming-seven.vercel.app/quiz-results?${params.toString()}`;
   };
 
   const handleAnswerChange = (id, value) => {

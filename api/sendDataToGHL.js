@@ -1,15 +1,12 @@
 const GHL_API_URL     = 'https://services.leadconnectorhq.com';
 const GHL_API_KEY     = process.env.GHL_API_KEY;
-const GHL_LOCATION_ID = 'Goi7kzVK7iwe2woxUHkT';
+const GHL_LOCATION_ID = 'imWIWDcnmOfijW0lltPq';
 
 const GHL_CUSTOM_FIELDS = {
-    goals            : 'uu6TYn6RGAVl1d1s7Rs9',
-    problemAreas     : 'VXorCyzx7Gw0hdjYkuKX',
-    timeline         : 'l18NHFHO7obFEeMZxrOS',
-    medication       : 'x7wsAfmm7S50PEPGh4P0',
-    previousAttempts : 'qKJCMdGV8XErgPeYWqls',
-    referralSource   : 'voTIXE4lGyB6mJG1w4RB',
-    consultation     : 'pycNHR5NDcCxntyDsij2',
+    goals          : '8nZxyaAMzd1eKMwv7Aa3', // "What best describes your goal?"
+    problemAreas   : '48Iwqxn55gjBfGWqBx7D', // "Which area are you most concerned about?"
+    referralSource : 'bqaVYgeCsodjVHdZVMo0', // "Where did you here about us"
+    consultation   : '6FZDpYVVy74Qdg2U7U7s', // "Consultation Type"
 };
 
 const ghlHeaders = {
@@ -62,13 +59,10 @@ module.exports = async (req, res) => {
                 `heard-via:${referral}`,
             ],
             customFields: [
-                { id: GHL_CUSTOM_FIELDS.goals,            value: goals },
-                { id: GHL_CUSTOM_FIELDS.problemAreas,     value: problemAreas },
-                { id: GHL_CUSTOM_FIELDS.timeline,         value: timeline },
-                { id: GHL_CUSTOM_FIELDS.medication,       value: medication },
-                { id: GHL_CUSTOM_FIELDS.previousAttempts, value: prevAttempts },
-                { id: GHL_CUSTOM_FIELDS.referralSource,   value: referral },
-                { id: GHL_CUSTOM_FIELDS.consultation,     value: consultation },
+                { id: GHL_CUSTOM_FIELDS.goals,          value: goals },
+                { id: GHL_CUSTOM_FIELDS.problemAreas,   value: problemAreas },
+                { id: GHL_CUSTOM_FIELDS.referralSource, value: referral },
+                { id: GHL_CUSTOM_FIELDS.consultation,   value: consultation },
             ],
         };
 

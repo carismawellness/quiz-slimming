@@ -66,26 +66,37 @@ module.exports = async (req, res) => {
             ],
         };
 
-        // Upsert by email
-        let contactId = null;
-        try {
-            const s = await fetch(
-                `${GHL_API_URL}/contacts/?locationId=${GHL_LOCATION_ID}&email=${encodeURIComponent(contactInfo.email)}&limit=1`,
-                { headers: ghlHeaders }
-            );
-            const sd = await s.json();
-            if (sd?.contacts?.length > 0) contactId = sd.contacts[0].id;
-        } catch (_) {}
+        // Create or update the contact in a single call. GHL's /contacts/upsert
+        // matches on email/phone, so returning leads and re-submissions update the
+        // existing record instead of failing with "This location does not allow
+        // duplicated contacts" (which the old search-then-create flow did silently).
+        const upsert = async (payload) => {
+            const r = await fetch(`${GHL_API_URL}/contacts/upsert`, {
+                method: 'POST', headers: ghlHeaders, body: JSON.stringify(payload),
+            });
+            return r.json();
+        };
 
-        if (contactId) {
-            await fetch(`${GHL_API_URL}/contacts/${contactId}`, {
-                method: 'PUT', headers: ghlHeaders, body: JSON.stringify(contactPayload),
+        let result    = await upsert(contactPayload);
+        let contactId = result?.contact?.id || null;
+
+        // If the full payload is rejected (e.g. a custom-field issue), still
+        // capture the lead's contact details so we never lose a way to reach them.
+        if (!contactId) {
+            result = await upsert({
+                locationId: GHL_LOCATION_ID,
+                firstName : contactInfo.first_name,
+                lastName  : contactInfo.surname,
+                email     : contactInfo.email,
+                phone     : contactInfo.phone,
+                source    : 'Slimming Quiz',
+                tags      : ['slimming-quiz-lead'],
             });
-        } else {
-            const cr  = await fetch(`${GHL_API_URL}/contacts/`, {
-                method: 'POST', headers: ghlHeaders, body: JSON.stringify(contactPayload),
-            });
-            contactId = (await cr.json())?.contact?.id;
+            contactId = result?.contact?.id || null;
+        }
+
+        if (!contactId) {
+            return res.status(502).json({ error: 'Failed to save contact to GoHighLevel', details: result });
         }
 
         // Note with full breakdown

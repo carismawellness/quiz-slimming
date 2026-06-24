@@ -119,9 +119,7 @@ function Questionnaire() {
         return;
       }
     }
-    if (currentQuestionIndex === 6 && questionnaire[6].answer === 'No consultation') {
-      storeAndRedirect();
-    } else if (currentQuestionIndex < questionnaire.length - 1) {
+    if (currentQuestionIndex < questionnaire.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       storeAndRedirect();

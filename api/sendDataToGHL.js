@@ -115,6 +115,19 @@ module.exports = async (req, res) => {
             await fetch(`${GHL_API_URL}/contacts/${contactId}/notes/`, {
                 method: 'POST', headers: ghlHeaders, body: JSON.stringify({ body: noteBody }),
             });
+
+            // Follow-up to-do so the lead lands in the team's task list (assigned to Mert Gulen).
+            const dueDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+            await fetch(`${GHL_API_URL}/contacts/${contactId}/tasks`, {
+                method: 'POST', headers: ghlHeaders,
+                body: JSON.stringify({
+                    title: `Call Slimming quiz lead - ${contactInfo.first_name} ${contactInfo.surname}`.trim(),
+                    body: 'New slimming quiz lead. Their answers are in this contact’s Notes. Please follow up.',
+                    dueDate,
+                    completed: false,
+                    assignedTo: 'NWpthLOZs1NuKdJ7pl0E',
+                }),
+            }).catch(() => {});
         }
 
         res.status(200).json({ success: true, contactId });
